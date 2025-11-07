@@ -1,0 +1,1729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <!-- Primary Meta Tags -->
+  <meta name="title" content="STAR: STacked AutoRegressive Scheme for Unified Multimodal Learning">
+  <meta name="description" content="STAR introduces a stacked autoregressive scheme for task-progressive unified multimodal learning, achieving SOTA performance on GenEval, DPG-Bench, and ImgEdit.">
+  <meta name="keywords" content="multimodal learning, autoregressive, image generation, image editing, visual understanding, MLLM, computer vision, AI">
+  <meta name="author" content="Jie Qin, Jiancheng Huang, Limeng Qiao, Lin Ma">
+  <meta name="robots" content="index, follow">
+  <meta name="language" content="English">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="STAR Research">
+  <meta property="og:title" content="STAR: STacked AutoRegressive Scheme for Unified Multimodal Learning">
+  <meta property="og:description" content="STAR introduces a stacked autoregressive scheme for task-progressive unified multimodal learning, achieving SOTA performance on GenEval, DPG-Bench, and ImgEdit.">
+  <meta property="og:url" content="https://star-mm-ai.github.io">
+  <meta property="og:image" content="https://star-mm-ai.github.io/static/images/teaser.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="STAR Framework Overview">
+  <meta property="article:published_time" content="2025-01-01T00:00:00.000Z">
+  <meta property="article:author" content="Jie Qin">
+  <meta property="article:section" content="Research">
+  <meta property="article:tag" content="multimodal learning">
+  <meta property="article:tag" content="autoregressive">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@star_research">
+  <meta name="twitter:creator" content="@star_ai">
+  <meta name="twitter:title" content="STAR: STacked AutoRegressive Scheme for Unified Multimodal Learning">
+  <meta name="twitter:description" content="STAR introduces a stacked autoregressive scheme for task-progressive unified multimodal learning, achieving SOTA performance on GenEval, DPG-Bench, and ImgEdit.">
+  <meta name="twitter:image" content="https://star-mm-ai.github.io/static/images/teaser.png">
+  <meta name="twitter:image:alt" content="STAR Framework Overview">
+
+  <!-- Academic/Research Specific -->
+  <meta name="citation_title" content="STAR: STacked AutoRegressive Scheme for Unified Multimodal Learning">
+  <meta name="citation_author" content="Qin, Jie">
+  <meta name="citation_author" content="Huang, Jiancheng">
+  <meta name="citation_author" content="Qiao, Limeng">
+  <meta name="citation_author" content="Ma, Lin">
+  <meta name="citation_publication_date" content="2025">
+  <meta name="citation_conference_title" content="arXiv preprint">
+  <meta name="citation_pdf_url" content="https://arxiv.org/pdf/xxxx.xxxxx.pdf">
+  
+  <!-- Additional SEO -->
+  <meta name="theme-color" content="#2563eb">
+  <meta name="msapplication-TileColor" content="#2563eb">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  
+  <!-- Preconnect for performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://ajax.googleapis.com">
+  <link rel="preconnect" href="https://documentcloud.adobe.com">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+
+  <title>STAR: STacked AutoRegressive Scheme for Unified Multimodal Learning</title>
+  
+  <!-- Favicon and App Icons -->
+  <link rel="icon" type="image/x-icon" href="static/images/staricon.ico">
+  <link rel="apple-touch-icon" href="static/images/staricon.ico">
+  
+  <!-- Critical CSS - Load synchronously -->
+  <link rel="stylesheet" href="static/css/bulma.min.css">
+  <link rel="stylesheet" href="static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="static/css/index.css">
+  
+  <!-- Non-critical CSS - Load asynchronously -->
+  <link rel="preload" href="static/css/bulma-slider.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="static/css/fontawesome.all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+  <!-- Fallback for browsers that don't support preload -->
+  <noscript>
+    <link rel="stylesheet" href="static/css/bulma-slider.min.css">
+    <link rel="stylesheet" href="static/css/fontawesome.all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  </noscript>
+  
+  <!-- Fonts - Optimized loading -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Custom CSS for carousel fix -->
+  <style>
+    .carousel {
+      position: relative;
+      overflow: hidden;
+      min-height: 600px; 
+    }
+
+    .carousel .item {
+      display: none; 
+      width: 100%;
+    }
+
+    .carousel .item:first-child,
+    .carousel .item.is-active {
+      display: block !important;
+    }
+
+    .carousel .item img {
+      width: 100%;
+      height: auto;
+      max-height: 700px;
+      object-fit: contain;
+      display: block; 
+    }
+
+    .carousel .subtitle {
+      font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+      font-size: 24px !important;
+      font-weight: 700 !important;
+      line-height: 1.6;
+      color: #4a4a4a;
+      margin-top: 24px;
+      padding: 0 40px;
+    }
+
+    .hero.teaser {
+      min-height: 600px;
+    }
+
+    .carousel-container {
+      position: relative;
+      width: 100%;
+    }
+
+    .results-carousel {
+      visibility: visible !important;
+      opacity: 1 !important;
+    }
+
+  </style>
+
+  <!-- Defer non-critical JavaScript -->
+  <script defer src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="https://documentcloud.adobe.com/view-sdk/main.js"></script>
+  <script defer src="static/js/fontawesome.all.min.js"></script>
+  <script defer src="static/js/bulma-carousel.min.js"></script>
+  <script defer src="static/js/bulma-slider.min.js"></script>
+  <script defer src="static/js/index.js"></script>
+
+  
+  <!-- Structured Data for Academic Papers -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ScholarlyArticle",
+    "headline": "STAR: STacked AutoRegressive Scheme for Unified Multimodal Learning",
+    "description": "STAR introduces a stacked autoregressive scheme for task-progressive unified multimodal learning, achieving SOTA performance on GenEval, DPG-Bench, and ImgEdit.",
+    "author": [
+      {
+        "@type": "Person",
+        "name": "Jie Qin",
+        "affiliation": {
+          "@type": "Organization",
+          "name": "Meituan"
+        }
+      },
+      {
+        "@type": "Person",
+        "name": "Jiancheng Huang",
+        "affiliation": {
+          "@type": "Organization",
+          "name": "Meituan"
+        }
+      },
+      {
+        "@type": "Person",
+        "name": "Limeng Qiao",
+        "affiliation": {
+          "@type": "Organization",
+          "name": "Meituan"
+        }
+      },
+      {
+        "@type": "Person",
+        "name": "Lin Ma",
+        "affiliation": {
+          "@type": "Organization",
+          "name": "Meituan"
+        }
+      }
+    ],
+    "datePublished": "2025-01-01",
+    "publisher": {
+      "@type": "Organization",
+      "name": "arXiv"
+    },
+    "url": "https://star-mm-ai.github.io",
+    "image": "https://star-mm-ai.github.io/static/images/teaser.png",
+    "keywords": ["multimodal learning", "autoregressive", "image generation", "image editing", "visual understanding"],
+    "abstract": "Multimodal large language models (MLLMs) play a pivotal role in advancing the quest for general artificial intelligence. However, achieving unified target for multimodal understanding and generation remains challenging due to optimization conflicts and performance trade-offs. To effectively enhance generative performance while preserving existing comprehension capabilities, we introduce STAR: a STacked AutoRegressive scheme for task-progressive unified multimodal learning.",
+    "citation": "@article{2025star, title={STAR: STacked AutoRegressive Scheme for Unified Multimodal Learning}, author={Qin, Jie and Huang, Jiancheng and Qiao, Limeng and Ma, Lin}, journal={arXiv preprint arXiv:}, year={2025}}",
+    "isAccessibleForFree": true,
+    "license": "https://www.apache.org/licenses/LICENSE-2.0",
+    "mainEntity": {
+      "@type": "WebPage",
+      "@id": "https://star-mm-ai.github.io"
+    },
+    "about": [
+      {
+        "@type": "Thing",
+        "name": "Multimodal Learning"
+      },
+      {
+        "@type": "Thing", 
+        "name": "Computer Vision"
+      }
+    ]
+  }
+  </script>
+  
+  <!-- Website/Organization Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "STAR Research Team",
+    "url": "https://star-mm-ai.github.io",
+    "logo": "https://star-mm-ai.github.io/static/images/logo.png",
+    "sameAs": [
+      "https://github.com/star-mm-ai"
+    ]
+  }
+  </script>
+</head>
+<body>
+
+  <!-- Scroll to Top Button -->
+  <button class="scroll-to-top" onclick="scrollToTop()" title="Scroll to top" aria-label="Scroll to top">
+    <i class="fas fa-chevron-up"></i>
+  </button>
+
+  <main id="main-content">
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            
+            <div class="publication-logo" style="margin-bottom: 20px;">
+              <img src="static/images/star_logo.png" alt="STAR Logo" style="height: 150px; max-width: 100%; object-fit: contain;">
+            </div>
+            <h1 class="title is-1 publication-title" style="text-align: center;">STAR: STacked AutoRegressive Scheme for Unified Multimodal Learning</h1>
+
+            <div class="is-size-5 publication-authors">
+              <span class="author-block">
+                <a href="#" target="_blank">Jie Qin *</a>,</span>
+                <span class="author-block">
+                  <a href="#" target="_blank">Jiancheng Huang *</a>,</span>
+                  <span class="author-block">
+                    <a href="#" target="_blank">Limeng Qiao *</a>,</span>
+                  <span class="author-block">
+                    <a href="#" target="_blank">Lin Ma</a>
+                  </span>
+                  </div>
+
+                  <div class="is-size-5 publication-authors">
+                    <span class="author-block">Meituan Inc<br>* Equal Contribution </span>
+                  </div>
+
+                  <div class="column has-text-centered">
+                    <div class="publication-links">
+                      <span class="link-block">
+                        <a href="https://arxiv.org/pdf/xxxx.xxxxx.pdf" target="_blank"
+                        class="external-link button is-normal is-rounded is-dark">
+                        <span class="icon">
+                          <i class="fas fa-file-pdf"></i>
+                        </span>
+                        <span>Paper</span>
+                      </a>
+                    </span>
+
+
+                  <span class="link-block">
+                    <a href="https://github.com/star-project/STAR" target="_blank"
+                    class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fab fa-github"></i>
+                    </span>
+                    <span>Code</span>
+                  </a>
+                </span>
+
+                <span class="link-block">
+                <a href="#" target="_blank"
+                class="external-link button is-normal is-rounded is-dark">
+                <span class="icon">
+                  <i class="fas fa-rocket"></i>
+                </span>
+                <span>Demo</span>
+              </a>
+            </span>
+
+                <span class="link-block">
+                  <a href="https://arxiv.org/abs/xxxx.xxxxx" target="_blank"
+                  class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                    <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+
+            <span class="link-block">
+              <a href="#" target="_blank"
+              class="external-link button is-normal is-rounded is-dark">
+              <span class="icon">
+                <i class="fas fa-download"></i>
+              </span>
+              <span>Models</span>
+            </a>
+          </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Teaser images carousel -->
+<section class="hero is-small is-light">
+  <div class="hero-body">
+    <div class="container">
+      <div id="teaser-carousel" class="carousel results-carousel">
+        <div class="item">
+          <img src="static/images/understand_1.png" alt="Understanding" loading="lazy"/>
+          <h2 class="subtitle has-text-centered">
+            Q: Please describe the content of this image.<br>
+            A: The image depicts a charming scene of a golden retriever puppy and an orange tabby kitten walking together on a grassy path. The background is filled with vibrant orange flowers, likely lilies, creating a picturesque and serene setting. The sunlight filters through the foliage, casting a warm glow over the entire scene, enhancing the natural beauty and tranquility of the moment. The animals appear to be enjoying their time outdoors, adding a sense of companionship and joy to the image.
+          </h2>
+        </div>
+        <div class="item">
+          <img src="static/images/generation_1.png" alt="Generation" loading="lazy"/>
+          <h2 class="subtitle has-text-centered">
+            A whimsical scene featuring a small elf with pointed ears and a green hat, sipping orange juice through a long straw from a disproportionately large orange. Next to the elf, a curious squirrel perches on its hind legs, while an owl with wide, observant eyes watches intently from a branch overhead. The orange's vibrant color contrasts with the muted browns and greens of the surrounding forest foliage.
+          </h2>
+        </div>
+        <div class="item">
+          <img src="static/images/edit_3.png" alt="Editing" loading="lazy"/>
+          <h2 class="subtitle has-text-centered">
+            Extract the animal in the image, including its full body and fur details.
+          </h2>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End teaser images carousel -->
+
+<!-- Paper abstract -->
+<section class="section hero is-light">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Multimodal large language models (MLLMs) play a pivotal role in advancing the quest for general artificial intelligence. However, achieving unified target for multimodal understanding and generation remains challenging due to optimization conflicts and performance trade-offs. To effectively enhance generative performance while preserving existing comprehension capabilities, we introduce <strong>STAR</strong>: <em>a <strong>ST</strong>acked <strong>A</strong>uto<strong>R</strong>egressive scheme for task-progressive unified multimodal learning</em>. This approach decomposes multimodal learning into multiple stages: understanding, generation, and editing. By freezing the parameters of the fundamental autoregressive (AR) model and progressively stacking isomorphic AR modules, it avoids cross-task interference while expanding the model's capabilities. Concurrently, we introduce a high-capacity VQ to enhance the granularity of image representations and employ an implicit reasoning mechanism to improve generation quality under complex conditions. Experiments demonstrate that STAR achieves state-of-the-art performance on GenEval (<strong>0.91</strong>), DPG-Bench (<strong>87.44</strong>), and ImgEdit (<strong>4.34</strong>), validating its efficacy for unified multimodal learning.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End paper abstract -->
+
+<!-- Understanding Section -->
+<section class="hero is-small is-light">
+  <div class="hero-body">
+    <div class="container">
+      <h2 class="title is-3 has-text-centered">Understanding</h2>
+      <div id="understanding-carousel" class="carousel results-carousel">
+        <div class="item">
+          <img src="static/images/understand_1.png" alt="Scene Understanding Example" loading="lazy"/>
+          <h2 class="subtitle has-text-centered">
+            Q: Please describe the content of this image.<br>
+            A: The image depicts a charming scene of a golden retriever puppy and an orange tabby kitten walking together on a grassy path. The background is filled with vibrant orange flowers, likely lilies, creating a picturesque and serene setting. The sunlight filters through the foliage, casting a warm glow over the entire scene, enhancing the natural beauty and tranquility of the moment. The animals appear to be enjoying their time outdoors, adding a sense of companionship and joy to the image.
+          </h2>
+        </div>
+        <div class="item">
+          <img src="static/images/understand_2.png" alt="OCR Example" loading="lazy"/>
+          <h2 class="subtitle has-text-centered">
+            Q: Tell me what text is in the picture.<br>
+            A: The text in the picture reads: ```STAR    understand    text - to - image    editing```
+          </h2>
+        </div>
+        <div class="item">
+          <img src="static/images/understand_3.png" alt="Visual Question Answering Example" loading="lazy"/>
+          <h2 class="subtitle has-text-centered">
+            Q: Where is the location shown in the picture.<br>
+            A: The image shows a section of the Great Wall of China, specifically the Mutianyu section. The Great Wall is an ancient fortification that stretches across northern China and is one of the most recognizable landmarks in the world. The Mutianyu section is located in the Beijing region and is known for its well-preserved sections and scenic views.
+          </h2>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End Understanding Section -->
+
+<!-- Generation Section -->
+<section class="hero is-small is-light">
+  <div class="hero-body">
+    <div class="container">
+      <h2 class="title is-3 has-text-centered">Generation</h2>
+      <div id="generation-carousel" class="carousel results-carousel">
+        <div class="item">
+          <img src="static/images/generation_1.png" alt="Text-to-Image Generation Example" loading="lazy"/>
+          <h2 class="subtitle has-text-centered">
+            A whimsical scene featuring a small elf with pointed ears and a green hat, sipping orange juice through a long straw from a disproportionately large orange. Next to the elf, a curious squirrel perches on its hind legs, while an owl with wide, observant eyes watches intently from a branch overhead. The orange's vibrant color contrasts with the muted browns and greens of the surrounding forest foliage.
+          </h2>
+        </div>
+        <div class="item">
+          <img src="static/images/generation_2.png" alt="Text-to-Image Generation Example" loading="lazy"/>
+          <h2 class="subtitle has-text-centered">
+            An intricately detailed character drawing by Bastien Lecouffe Deharme featuring an elderly gentleman with long, flowing grey hair. He possesses majestic, large grey wings that extend from his back, conveying both wisdom and strength. The refinement of the character is further accentuated by a polished monocle nestled over one keen eye, and he is dressed in sophisticated attire that hints at a bygone era of elegance.
+          </h2>
+        </div>
+        <div class="item">
+          <img src="static/images/generation_3.png" alt="Text-to-Image Generation Example" loading="lazy"/>
+          <h2 class="subtitle has-text-centered">
+            On the soft, warm sand of the beach, a fluffy white rabbit with rounded ears is caught in a curious moment, gently placing its paw on the ribbed surface of a pink scallop shell. The scallop, slightly open, reveals its smooth interior contrasting with its coarse outer texture, while hues of pink and orange from the setting sun reflect off its surface. There's a tranquil ocean backdrop with the gentle ebbing of the tide, and the fading daylight casts a golden glow over the scene, highlighting the rabbit's soft fur and the shell's subtle color.
+          </h2>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End Generation Section -->
+
+<!-- Editing Section -->
+<section class="hero is-small is-light">
+  <div class="hero-body">
+    <div class="container">
+      <h2 class="title is-3 has-text-centered">Editing</h2>
+      <div id="editing-carousel" class="carousel results-carousel">
+        <div class="item">
+          <img src="static/images/edit_1.png" alt="Instruction-based Image Editing" loading="lazy"/>
+          <h2 class="subtitle has-text-centered">
+            Remove the tiger in the water.
+          </h2>
+        </div>
+        <div class="item">
+          <img src="static/images/edit_2.png" alt="Instruction-based Image Editing" loading="lazy"/>
+          <h2 class="subtitle has-text-centered">
+            Add a vintage car driving along the dirt path in the foreground of the image.
+          </h2>
+        </div>
+        <div class="item">
+          <img src="static/images/edit_3.png" alt="Advanced Editing Example" loading="lazy"/>
+          <h2 class="subtitle has-text-centered">
+            Extract the animal in the image, including its full body and fur details.
+          </h2>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End Editing Section -->
+
+<!-- Knowledge Reasoning Section -->
+<section class="hero is-small is-light">
+  <div class="hero-body">
+    <div class="container">
+      <h2 class="title is-3 has-text-centered">Knowledge Reasoning</h2>
+      <div id="reasoning-carousel" class="carousel results-carousel">
+        <div class="item">
+          <img src="static/images/reason_1.png" alt="Implicit Reasoning Example" loading="lazy"/>
+          <h2 class="subtitle has-text-centered">
+            The weapon of Apollo in Greek mythology.
+          </h2>
+        </div>
+        <div class="item">
+          <img src="static/images/reason_2.png" alt="Implicit Reasoning Example" loading="lazy"/>
+          <h2 class="subtitle has-text-centered">
+            The object used to find the heroine in Cinderella.
+          </h2>
+        </div>
+        <div class="item">
+          <img src="static/images/reason_3.png" alt="Implicit Reasoning Example" loading="lazy"/>
+          <h2 class="subtitle has-text-centered">
+            The fastest land animal.
+          </h2>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End Knowledge Reasoning Section -->
+
+<!-- Framework Section -->
+<section class="hero is-small">
+  <div class="hero-body">
+    <div class="container">
+      <h2 class="title is-3 has-text-centered">Framework</h2>
+      <div class="columns is-centered">
+        <div class="column is-10">
+          <div class="framework-diagram">
+            <img src="static/images/star-framework.png" alt="STAR Framework Architecture" loading="lazy" style="width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"/>
+            <div class="content has-text-centered" style="margin-top: 20px;">
+              <p class="is-size-5">
+                The overall architecture of <strong>STAR</strong>. The architecture integrates two visual encoder (pixel and semantic), a multimodal autoregressive transformer, a stacked autoregressive transformer, and a pixel decoder. The stacked AR is replicated from the last N layer of the multimodal AR.
+                
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End Framework Section -->
+
+<!-- Training Stages Section -->
+<section class="hero is-small is-light">
+  <div class="hero-body">
+    <div class="container">
+      <h2 class="title is-3 has-text-centered">Training Stages</h2>
+      <div class="columns is-centered">
+        <div class="column is-10">
+          <div class="training-stages-diagram">
+            <img src="static/images/star-training.png" alt="STAR Training Stages" loading="lazy" style="width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"/>
+            <div class="content has-text-centered" style="margin-top: 20px;">
+              <p class="is-size-5">
+                The training stages of </strong>STAR</strong> comprise four task-progressive phases that successively expand capability while preserving all previously acquired skills.
+                
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+<!-- End Training Stages Section -->
+
+<!-- Quantitative Results Section -->
+<section class="hero is-small">
+  <div class="hero-body">
+    <div class="container">
+      <h2 class="title is-3 has-text-centered">Quantitative Results</h2>
+
+      <!-- Understanding Results -->
+      <div class="content" style="margin-top: 40px;">
+        <h3 class="title is-4 has-text-centered">Visual Understanding</h3>
+        <div class="table-container" style="overflow-x: auto;">
+          <table class="table is-striped is-hoverable is-fullwidth">
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>#LLM</th>
+                <th>MMB</th>
+                <th>MMStar</th>
+                <th>MathVista</th>
+                <th>SEED</th>
+                <th>MME-P</th>
+                <th>MMMU</th>
+                <th>OCRBench</th>
+                <th>POPE</th>
+                <th>DocVQA</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Seed-X</td>
+                <td>13B</td>
+                <td>70.1</td>
+                <td>-</td>
+                <td>-</td>
+                <td>66.5</td>
+                <td>1457.0</td>
+                <td>35.6</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+              </tr>
+              <tr>
+                <td>EMU3</td>
+                <td>8B</td>
+                <td>58.5</td>
+                <td>-</td>
+                <td>-</td>
+                <td>68.2</td>
+                <td>1243.8</td>
+                <td>31.6</td>
+                <td>68.7</td>
+                <td>85.2</td>
+                <td>-</td>
+              </tr>
+              <tr>
+                <td>MetaMorph</td>
+                <td>8B</td>
+                <td>75.2</td>
+                <td>-</td>
+                <td>-</td>
+                <td>71.8</td>
+                <td>-</td>
+                <td>41.8</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+              </tr>
+              <tr>
+                <td>Janus</td>
+                <td>1.3B</td>
+                <td>75.5</td>
+                <td>-</td>
+                <td>-</td>
+                <td>63.7</td>
+                <td>1338.0</td>
+                <td>30.5</td>
+                <td>-</td>
+                <td>87.0</td>
+                <td>-</td>
+              </tr>
+              <tr>
+                <td>Janus-Pro</td>
+                <td>7B</td>
+                <td>79.2</td>
+                <td>87.4</td>
+                <td>-</td>
+                <td>72.1</td>
+                <td>1567.1</td>
+                <td>41.0</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+              </tr>
+              <tr>
+                <td>BLIP3-o</td>
+                <td>8B</td>
+                <td>83.5</td>
+                <td>-</td>
+                <td>-</td>
+                <td>77.5</td>
+                <td>1682.6</td>
+                <td>50.6</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+              </tr>
+              <tr>
+                <td>Show-o2</td>
+                <td>7B</td>
+                <td>79.3</td>
+                <td>56.6</td>
+                <td>-</td>
+                <td>69.8</td>
+                <td>1620.0</td>
+                <td>48.9</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+              </tr>
+              <tr>
+                <td>MetaQuery-XL</td>
+                <td>7B</td>
+                <td>83.5</td>
+                <td>-</td>
+                <td>-</td>
+                <td>76.9</td>
+                <td>1685.2</td>
+                <td>58.6</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+              </tr>
+              <tr>
+                <td>Bagel</td>
+                <td>14B</td>
+                <td>85.0</td>
+                <td>-</td>
+                <td>73.1</td>
+                <td>-</td>
+                <td>1687.0</td>
+                <td>55.3</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+              </tr>
+              <tr>
+                <td>Ovis-U1</td>
+                <td>1.5B</td>
+                <td>77.8</td>
+                <td>-</td>
+                <td>69.4</td>
+                <td>-</td>
+                <td>-</td>
+                <td>51.1</td>
+                <td>88.3</td>
+                <td>-</td>
+                <td>-</td>
+              </tr>
+              <tr>
+                <td>ILLUME+</td>
+                <td>3B</td>
+                <td>80.8</td>
+                <td>-</td>
+                <td>-</td>
+                <td>73.3</td>
+                <td>1414.0</td>
+                <td>44.3</td>
+                <td>67.2</td>
+                <td>87.6</td>
+                <td>80.8</td>
+              </tr>
+              <tr>
+                <td>X-Omni</td>
+                <td>7B</td>
+                <td>74.8</td>
+                <td>-</td>
+                <td>-</td>
+                <td>74.1</td>
+                <td>-</td>
+                <td>-</td>
+                <td>70.4</td>
+                <td>89.3</td>
+                <td>88.6</td>
+              </tr>
+              <tr class="has-background-success-light">
+                <td><strong>STAR-3B</strong></td>
+                <td><strong>3B</strong></td>
+                <td><strong>80.1</strong></td>
+                <td><strong>55.8</strong></td>
+                <td><strong>62.3</strong></td>
+                <td><strong>74.0</strong></td>
+                <td><strong>1592.3</strong></td>
+                <td><strong>53.1</strong></td>
+                <td><strong>79.7</strong></td>
+                <td><strong>85.9</strong></td>
+                <td><strong>93.9</strong></td>
+              </tr>
+              <tr class="has-background-success-light">
+                <td><strong>STAR-7B</strong></td>
+                <td><strong>7B</strong></td>
+                <td><strong>83.9</strong></td>
+                <td><strong>63.9</strong></td>
+                <td><strong>68.1</strong></td>
+                <td><strong>77.0</strong></td>
+                <td><strong>1690.1</strong></td>
+                <td><strong>58.6</strong></td>
+                <td><strong>86.4</strong></td>
+                <td><strong>86.6</strong></td>
+                <td><strong>95.7</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+
+      <!-- Generation Results -->
+      <div class="content" style="margin-top: 60px;">
+        <h3 class="title is-4 has-text-centered">Text-to-Image Generation</h3>
+
+        <!-- GenEval Table -->
+        <h4 class="title is-5 has-text-centered" style="margin-top: 30px;">GenEval</h4>
+        <div class="table-container" style="overflow-x: auto;">
+          <table class="table is-striped is-hoverable is-fullwidth">
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>Single</th>
+                <th>Two</th>
+                <th>Counting</th>
+                <th>Colors</th>
+                <th>Position</th>
+                <th>Color Attributes</th>
+                <th>Overall</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="has-background-info-light">
+                <td colspan="8" style="text-align: center;"><strong>Generation-Only Models</strong></td>
+              </tr>
+              <tr>
+                <td>SDXL</td>
+                <td>0.98</td>
+                <td>0.74</td>
+                <td>0.39</td>
+                <td>0.85</td>
+                <td>0.15</td>
+                <td>0.23</td>
+                <td>0.55</td>
+              </tr>
+              <tr>
+                <td>DALL-E</td>
+                <td>0.96</td>
+                <td>0.87</td>
+                <td>0.47</td>
+                <td>0.83</td>
+                <td>0.43</td>
+                <td>0.45</td>
+                <td>0.67</td>
+              </tr>
+              <tr>
+                <td>SD3-medium</td>
+                <td>0.99</td>
+                <td>0.94</td>
+                <td>0.72</td>
+                <td>0.89</td>
+                <td>0.33</td>
+                <td>0.60</td>
+                <td>0.74</td>
+              </tr>
+              <tr>
+                <td>FLUX.1-dev</td>
+                <td>0.98</td>
+                <td>0.93</td>
+                <td>0.75</td>
+                <td>0.93</td>
+                <td>0.68</td>
+                <td>0.65</td>
+                <td>0.82</td>
+              </tr>
+              <tr>
+                <td>OmniGen2</td>
+                <td>0.99</td>
+                <td>0.96</td>
+                <td>0.74</td>
+                <td>0.98</td>
+                <td>0.72</td>
+                <td>0.75</td>
+                <td>0.86</td>
+              </tr>
+              <tr class="has-background-success-light">
+                <td colspan="8" style="text-align: center;"><strong>Unified Models</strong></td>
+              </tr>
+              <tr>
+                <td>Emu3</td>
+                <td>0.99</td>
+                <td>0.81</td>
+                <td>0.42</td>
+                <td>0.80</td>
+                <td>0.49</td>
+                <td>0.45</td>
+                <td>0.66</td>
+              </tr>
+              <tr>
+                <td>ILLUME+</td>
+                <td>0.99</td>
+                <td>0.88</td>
+                <td>0.62</td>
+                <td>0.84</td>
+                <td>0.42</td>
+                <td>0.53</td>
+                <td>0.72</td>
+              </tr>
+              <tr>
+                <td>Janus-Pro</td>
+                <td>0.99</td>
+                <td>0.89</td>
+                <td>0.59</td>
+                <td>0.90</td>
+                <td>0.79</td>
+                <td>0.66</td>
+                <td>0.80</td>
+              </tr>
+              <tr>
+                <td>MetaQuery</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>0.80</td>
+              </tr>
+              <tr>
+                <td>BLIP3-o</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>0.84</td>
+              </tr>
+              <tr>
+                <td>UniWorld-V1</td>
+                <td>0.99</td>
+                <td>0.93</td>
+                <td>0.81</td>
+                <td>0.89</td>
+                <td>0.74</td>
+                <td>0.71</td>
+                <td>0.84</td>
+              </tr>
+              <tr>
+                <td>Mogao</td>
+                <td>1.00</td>
+                <td>0.97</td>
+                <td>0.83</td>
+                <td>0.93</td>
+                <td>0.84</td>
+                <td>0.80</td>
+                <td>0.89</td>
+              </tr>
+              <tr>
+                <td>BAGEL</td>
+                <td>0.98</td>
+                <td>0.95</td>
+                <td>0.84</td>
+                <td>0.95</td>
+                <td>0.78</td>
+                <td>0.77</td>
+                <td>0.88</td>
+              </tr>
+              <tr>
+                <td>Show-o2</td>
+                <td>1.00</td>
+                <td>0.87</td>
+                <td>0.58</td>
+                <td>0.92</td>
+                <td>0.52</td>
+                <td>0.62</td>
+                <td>0.76</td>
+              </tr>
+              <tr>
+                <td>GPT-4o</td>
+                <td>0.99</td>
+                <td>0.92</td>
+                <td>0.85</td>
+                <td>0.92</td>
+                <td>0.75</td>
+                <td>0.61</td>
+                <td>0.84</td>
+              </tr>
+              <tr>
+                <td>X-Omni</td>
+                <td>0.98</td>
+                <td>0.95</td>
+                <td>0.75</td>
+                <td>0.91</td>
+                <td>0.71</td>
+                <td>0.68</td>
+                <td>0.83</td>
+              </tr>
+              <tr>
+                <td>Ovis-U1</td>
+                <td>0.98</td>
+                <td>0.98</td>
+                <td>0.90</td>
+                <td>0.92</td>
+                <td>0.79</td>
+                <td>0.75</td>
+                <td>0.89</td>
+              </tr>
+              <tr class="has-background-success-light">
+                <td><strong>STAR-3B</strong></td>
+                <td><strong>0.98</strong></td>
+                <td><strong>0.87</strong></td>
+                <td><strong>0.85</strong></td>
+                <td><strong>0.91</strong></td>
+                <td><strong>0.79</strong></td>
+                <td><strong>0.76</strong></td>
+                <td><strong>0.86</strong></td>
+              </tr>
+              <tr class="has-background-success-light">
+                <td><strong>STAR-7B</strong></td>
+                <td><strong>0.98</strong></td>
+                <td><strong>0.94</strong></td>
+                <td><strong>0.90</strong></td>
+                <td><strong>0.92</strong></td>
+                <td><strong>0.91</strong></td>
+                <td><strong>0.80</strong></td>
+                <td><strong>0.91</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- DPG-Bench Table -->
+        <h4 class="title is-5 has-text-centered" style="margin-top: 40px;">DPG-Bench</h4>
+        <div class="table-container" style="overflow-x: auto;">
+          <table class="table is-striped is-hoverable is-fullwidth">
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>Global</th>
+                <th>Entity</th>
+                <th>Attributes</th>
+                <th>Relation</th>
+                <th>Other</th>
+                <th>Overall</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="has-background-info-light">
+                <td colspan="7" style="text-align: center;"><strong>Generation-Only Models</strong></td>
+              </tr>
+              <tr>
+                <td>SDXL</td>
+                <td>83.27</td>
+                <td>82.43</td>
+                <td>80.91</td>
+                <td>86.76</td>
+                <td>80.41</td>
+                <td>74.65</td>
+              </tr>
+              <tr>
+                <td>DALL-E</td>
+                <td>90.97</td>
+                <td>89.61</td>
+                <td>88.39</td>
+                <td>90.58</td>
+                <td>89.83</td>
+                <td>83.50</td>
+              </tr>
+              <tr>
+                <td>SD3-medium</td>
+                <td>87.90</td>
+                <td>91.01</td>
+                <td>88.83</td>
+                <td>80.70</td>
+                <td>88.68</td>
+                <td>84.08</td>
+              </tr>
+              <tr>
+                <td>FLUX.1-dev</td>
+                <td>82.10</td>
+                <td>89.50</td>
+                <td>88.70</td>
+                <td>91.10</td>
+                <td>89.40</td>
+                <td>84.00</td>
+              </tr>
+              <tr>
+                <td>OmniGen2</td>
+                <td>88.81</td>
+                <td>88.83</td>
+                <td>90.18</td>
+                <td>89.37</td>
+                <td>90.27</td>
+                <td>83.57</td>
+              </tr>
+              <tr class="has-background-success-light">
+                <td colspan="7" style="text-align: center;"><strong>Unified Models</strong></td>
+              </tr>
+              <tr>
+                <td>Emu3</td>
+                <td>85.21</td>
+                <td>86.68</td>
+                <td>86.84</td>
+                <td>90.22</td>
+                <td>83.15</td>
+                <td>80.60</td>
+              </tr>
+              <tr>
+                <td>Janus-Pro</td>
+                <td>86.90</td>
+                <td>88.90</td>
+                <td>89.40</td>
+                <td>89.32</td>
+                <td>89.48</td>
+                <td>84.19</td>
+              </tr>
+              <tr>
+                <td>MetaQuery</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>82.05</td>
+              </tr>
+              <tr>
+                <td>BLIP3-o</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>81.60</td>
+              </tr>
+              <tr>
+                <td>UniWorld-V1</td>
+                <td>83.64</td>
+                <td>88.39</td>
+                <td>88.44</td>
+                <td>89.27</td>
+                <td>87.22</td>
+                <td>81.38</td>
+              </tr>
+              <tr>
+                <td>Mogao</td>
+                <td>82.37</td>
+                <td>90.03</td>
+                <td>88.26</td>
+                <td>93.18</td>
+                <td>85.40</td>
+                <td>84.33</td>
+              </tr>
+              <tr>
+                <td>BAGEL</td>
+                <td>88.94</td>
+                <td>90.37</td>
+                <td>91.29</td>
+                <td>90.82</td>
+                <td>88.67</td>
+                <td>85.07</td>
+              </tr>
+              <tr>
+                <td>Show-o2</td>
+                <td>89.00</td>
+                <td>91.78</td>
+                <td>89.96</td>
+                <td>91.81</td>
+                <td>91.64</td>
+                <td>86.14</td>
+              </tr>
+              <tr>
+                <td>GPT-4o</td>
+                <td>82.27</td>
+                <td>91.27</td>
+                <td>87.67</td>
+                <td>93.85</td>
+                <td>88.71</td>
+                <td>86.23</td>
+              </tr>
+              <tr>
+                <td>X-Omni</td>
+                <td>84.80</td>
+                <td>92.59</td>
+                <td>90.63</td>
+                <td>94.75</td>
+                <td>84.20</td>
+                <td>87.65</td>
+              </tr>
+              <tr>
+                <td>Ovis-U1</td>
+                <td>82.37</td>
+                <td>90.08</td>
+                <td>88.68</td>
+                <td>93.35</td>
+                <td>85.20</td>
+                <td>83.72</td>
+              </tr>
+              <tr class="has-background-success-light">
+                <td><strong>STAR-3B</strong></td>
+                <td><strong>93.00</strong></td>
+                <td><strong>90.49</strong></td>
+                <td><strong>91.71</strong></td>
+                <td><strong>90.72</strong></td>
+                <td><strong>92.75</strong></td>
+                <td><strong>87.30</strong></td>
+              </tr>
+              <tr class="has-background-success-light">
+                <td><strong>STAR-7B</strong></td>
+                <td><strong>94.97</strong></td>
+                <td><strong>92.91</strong></td>
+                <td><strong>91.62</strong></td>
+                <td><strong>94.30</strong></td>
+                <td><strong>83.82</strong></td>
+                <td><strong>87.44</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- WISE Table -->
+        <h4 class="title is-5 has-text-centered" style="margin-top: 40px;">WISE (World Knowledge Reasoning)</h4>
+        <div class="table-container" style="overflow-x: auto;">
+          <table class="table is-striped is-hoverable is-fullwidth">
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>Cultural</th>
+                <th>Time</th>
+                <th>Space</th>
+                <th>Biology</th>
+                <th>Physics</th>
+                <th>Chemistry</th>
+                <th>Overall</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="has-background-info-light">
+                <td colspan="8" style="text-align: center;"><strong>Generation-Only Models</strong></td>
+              </tr>
+              <tr>
+                <td>SD-XL</td>
+                <td>0.43</td>
+                <td>0.48</td>
+                <td>0.47</td>
+                <td>0.44</td>
+                <td>0.45</td>
+                <td>0.27</td>
+                <td>0.43</td>
+              </tr>
+              <tr>
+                <td>SD-3.5-large</td>
+                <td>0.44</td>
+                <td>0.50</td>
+                <td>0.58</td>
+                <td>0.44</td>
+                <td>0.52</td>
+                <td>0.31</td>
+                <td>0.46</td>
+              </tr>
+              <tr>
+                <td>FLUX.1-dev</td>
+                <td>0.48</td>
+                <td>0.58</td>
+                <td>0.62</td>
+                <td>0.42</td>
+                <td>0.51</td>
+                <td>0.35</td>
+                <td>0.50</td>
+              </tr>
+              <tr class="has-background-success-light">
+                <td colspan="8" style="text-align: center;"><strong>Unified Models</strong></td>
+              </tr>
+              <tr>
+                <td>Emu3</td>
+                <td>0.34</td>
+                <td>0.45</td>
+                <td>0.48</td>
+                <td>0.41</td>
+                <td>0.45</td>
+                <td>0.27</td>
+                <td>0.39</td>
+              </tr>
+              <tr>
+                <td>Janus-Pro-7B</td>
+                <td>0.30</td>
+                <td>0.37</td>
+                <td>0.49</td>
+                <td>0.36</td>
+                <td>0.42</td>
+                <td>0.26</td>
+                <td>0.35</td>
+              </tr>
+              <tr>
+                <td>MetaQuery-XL</td>
+                <td>0.56</td>
+                <td>0.55</td>
+                <td>0.62</td>
+                <td>0.49</td>
+                <td>0.63</td>
+                <td>0.41</td>
+                <td>0.55</td>
+              </tr>
+              <tr>
+                <td>BLIP3-o</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>0.62</td>
+              </tr>
+              <tr>
+                <td>BAGEL</td>
+                <td>0.76</td>
+                <td>0.69</td>
+                <td>0.75</td>
+                <td>0.65</td>
+                <td>0.75</td>
+                <td>0.58</td>
+                <td>0.70</td>
+              </tr>
+              <tr>
+                <td>GPT-4o</td>
+                <td>0.94</td>
+                <td>0.64</td>
+                <td>0.98</td>
+                <td>0.93</td>
+                <td>0.98</td>
+                <td>0.95</td>
+                <td>0.89</td>
+              </tr>
+              <tr class="has-background-success-light">
+                <td><strong>STAR-3B</strong></td>
+                <td><strong>0.58</strong></td>
+                <td><strong>0.54</strong></td>
+                <td><strong>0.48</strong></td>
+                <td><strong>0.49</strong></td>
+                <td><strong>0.51</strong></td>
+                <td><strong>0.54</strong></td>
+                <td><strong>0.52</strong></td>
+              </tr>
+              <tr class="has-background-success-light">
+                <td><strong>STAR-7B</strong></td>
+                <td><strong>0.61</strong></td>
+                <td><strong>0.67</strong></td>
+                <td><strong>0.61</strong></td>
+                <td><strong>0.74</strong></td>
+                <td><strong>0.69</strong></td>
+                <td><strong>0.66</strong></td>
+                <td><strong>0.66</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Editing Results -->
+      <div class="content" style="margin-top: 60px;">
+        <h3 class="title is-4 has-text-centered">Image Editing</h3>
+
+        <!-- MagicBrush Table -->
+        <h4 class="title is-5 has-text-centered" style="margin-top: 30px;">MagicBrush</h4>
+        <div class="table-container" style="overflow-x: auto;">
+          <table class="table is-striped is-hoverable is-fullwidth">
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>L1 ↓</th>
+                <th>CLIP-I ↑</th>
+                <th>DINO ↑</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>MagicBrush</td>
+                <td>0.074</td>
+                <td>0.908</td>
+                <td>0.847</td>
+              </tr>
+              <tr>
+                <td>Instruct-Pix2Pix</td>
+                <td>0.114</td>
+                <td>0.851</td>
+                <td>0.744</td>
+              </tr>
+              <tr>
+                <td>UltraEdit</td>
+                <td>0.066</td>
+                <td>0.904</td>
+                <td>0.852</td>
+              </tr>
+              <tr>
+                <td>ICEdit</td>
+                <td>0.060</td>
+                <td>0.928</td>
+                <td>0.853</td>
+              </tr>
+              <tr>
+                <td>OmniGen</td>
+                <td>0.116</td>
+                <td>0.863</td>
+                <td>0.821</td>
+              </tr>
+              <tr>
+                <td>UniReal</td>
+                <td>0.081</td>
+                <td>0.903</td>
+                <td>0.837</td>
+              </tr>
+              <tr>
+                <td>BAGEL</td>
+                <td>0.074</td>
+                <td>0.914</td>
+                <td>0.827</td>
+              </tr>
+              <tr class="has-background-success-light">
+                <td><strong>STAR-3B</strong></td>
+                <td><strong>0.056</strong></td>
+                <td><strong>0.934</strong></td>
+                <td><strong>0.857</strong></td>
+              </tr>
+              <tr class="has-background-success-light">
+                <td><strong>STAR-7B</strong></td>
+                <td><strong>0.060</strong></td>
+                <td><strong>0.931</strong></td>
+                <td><strong>0.853</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ImgEdit-Bench Table -->
+        <h4 class="title is-5 has-text-centered" style="margin-top: 40px;">ImgEdit-Bench</h4>
+        <div class="table-container" style="overflow-x: auto;">
+          <table class="table is-striped is-hoverable is-fullwidth">
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>Add</th>
+                <th>Adjust</th>
+                <th>Extract</th>
+                <th>Replace</th>
+                <th>Remove</th>
+                <th>Background</th>
+                <th>Style</th>
+                <th>Hybrid</th>
+                <th>Action</th>
+                <th>Overall</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="has-background-info-light">
+                <td colspan="11" style="text-align: center;"><strong>Editing-Only Models</strong></td>
+              </tr>
+              <tr>
+                <td>MagicBrush</td>
+                <td>2.84</td>
+                <td>1.58</td>
+                <td>1.51</td>
+                <td>1.97</td>
+                <td>1.58</td>
+                <td>1.75</td>
+                <td>2.38</td>
+                <td>1.62</td>
+                <td>1.22</td>
+                <td>1.90</td>
+              </tr>
+              <tr>
+                <td>Instruct-Pix2Pix</td>
+                <td>2.45</td>
+                <td>1.83</td>
+                <td>1.44</td>
+                <td>2.01</td>
+                <td>1.50</td>
+                <td>1.44</td>
+                <td>3.55</td>
+                <td>1.20</td>
+                <td>1.46</td>
+                <td>1.88</td>
+              </tr>
+              <tr>
+                <td>AnyEdit</td>
+                <td>3.18</td>
+                <td>2.95</td>
+                <td>1.88</td>
+                <td>2.47</td>
+                <td>2.23</td>
+                <td>2.24</td>
+                <td>2.85</td>
+                <td>1.56</td>
+                <td>2.65</td>
+                <td>2.45</td>
+              </tr>
+              <tr>
+                <td>UltraEdit</td>
+                <td>3.44</td>
+                <td>2.81</td>
+                <td>2.13</td>
+                <td>2.96</td>
+                <td>1.45</td>
+                <td>2.83</td>
+                <td>3.76</td>
+                <td>1.91</td>
+                <td>2.98</td>
+                <td>2.70</td>
+              </tr>
+              <tr>
+                <td>Step1X-Edit</td>
+                <td>3.88</td>
+                <td>3.14</td>
+                <td>1.76</td>
+                <td>3.40</td>
+                <td>2.41</td>
+                <td>3.16</td>
+                <td>4.63</td>
+                <td>2.64</td>
+                <td>2.52</td>
+                <td>3.06</td>
+              </tr>
+              <tr>
+                <td>ICEdit</td>
+                <td>3.58</td>
+                <td>3.39</td>
+                <td>1.73</td>
+                <td>3.15</td>
+                <td>2.93</td>
+                <td>3.08</td>
+                <td>3.84</td>
+                <td>2.04</td>
+                <td>3.68</td>
+                <td>3.05</td>
+              </tr>
+              <tr class="has-background-success-light">
+                <td colspan="11" style="text-align: center;"><strong>Unified Models</strong></td>
+              </tr>
+              <tr>
+                <td>GPT-4o</td>
+                <td>4.61</td>
+                <td>4.33</td>
+                <td>2.90</td>
+                <td>4.35</td>
+                <td>3.66</td>
+                <td>4.57</td>
+                <td>4.93</td>
+                <td>3.96</td>
+                <td>4.89</td>
+                <td>4.20</td>
+              </tr>
+              <tr>
+                <td>OmniGen</td>
+                <td>3.47</td>
+                <td>3.04</td>
+                <td>1.71</td>
+                <td>2.94</td>
+                <td>2.43</td>
+                <td>3.21</td>
+                <td>4.19</td>
+                <td>2.24</td>
+                <td>3.38</td>
+                <td>2.96</td>
+              </tr>
+              <tr>
+                <td>BAGEL</td>
+                <td>3.56</td>
+                <td>3.31</td>
+                <td>1.70</td>
+                <td>3.30</td>
+                <td>2.62</td>
+                <td>3.24</td>
+                <td>4.49</td>
+                <td>2.38</td>
+                <td>4.17</td>
+                <td>3.20</td>
+              </tr>
+              <tr>
+                <td>UniWorld-V1</td>
+                <td>3.82</td>
+                <td>3.64</td>
+                <td>2.27</td>
+                <td>3.47</td>
+                <td>3.24</td>
+                <td>2.99</td>
+                <td>4.21</td>
+                <td>2.96</td>
+                <td>2.74</td>
+                <td>3.26</td>
+              </tr>
+              <tr>
+                <td>OmniGen2</td>
+                <td>3.57</td>
+                <td>3.06</td>
+                <td>1.77</td>
+                <td>3.74</td>
+                <td>3.20</td>
+                <td>3.57</td>
+                <td>4.81</td>
+                <td>2.52</td>
+                <td>4.68</td>
+                <td>3.44</td>
+              </tr>
+              <tr>
+                <td>Ovis-U1</td>
+                <td>4.13</td>
+                <td>3.62</td>
+                <td>2.98</td>
+                <td>4.45</td>
+                <td>4.06</td>
+                <td>4.22</td>
+                <td>4.69</td>
+                <td>3.45</td>
+                <td>4.61</td>
+                <td>4.00</td>
+              </tr>
+              <tr class="has-background-success-light">
+                <td><strong>STAR-3B</strong></td>
+                <td><strong>4.26</strong></td>
+                <td><strong>4.06</strong></td>
+                <td><strong>3.78</strong></td>
+                <td><strong>4.46</strong></td>
+                <td><strong>4.34</strong></td>
+                <td><strong>4.19</strong></td>
+                <td><strong>4.53</strong></td>
+                <td><strong>3.29</strong></td>
+                <td><strong>4.38</strong></td>
+                <td><strong>4.14</strong></td>
+              </tr>
+              <tr class="has-background-success-light">
+                <td><strong>STAR-7B</strong></td>
+                <td><strong>4.33</strong></td>
+                <td><strong>4.19</strong></td>
+                <td><strong>4.19</strong></td>
+                <td><strong>4.59</strong></td>
+                <td><strong>4.58</strong></td>
+                <td><strong>4.36</strong></td>
+                <td><strong>4.59</strong></td>
+                <td><strong>3.67</strong></td>
+                <td><strong>4.60</strong></td>
+                <td><strong>4.34</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End Quantitative Results Section -->
+
+
+  
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('DOM loaded, initializing carousels...');
+  
+  document.querySelectorAll('.carousel .item:first-child').forEach(item => {
+    item.style.display = 'block';
+    item.classList.add('is-active');
+  });
+
+  setTimeout(function() {
+    initCarousels();
+  }, 500);
+
+  function initCarousels() {
+    if (typeof bulmaCarousel !== 'undefined') {
+      try {
+        console.log('Initializing bulmaCarousel...');
+        
+        const teaserCarousel = bulmaCarousel.attach('#teaser-carousel', {
+          slidesToScroll: 1,
+          slidesToShow: 1,
+          infinite: true,
+          autoplay: true,
+          autoplaySpeed: 3000,
+          pauseOnHover: true,
+          navigation: true,
+          navigationKeys: true,
+          navigationSwipe: true
+        });
+
+        const understandingCarousel = bulmaCarousel.attach('#understanding-carousel', {
+          slidesToScroll: 1,
+          slidesToShow: 1,
+          infinite: true,
+          autoplay: true,
+          autoplaySpeed: 3000,
+          pauseOnHover: true,
+          navigation: true
+        });
+
+        const generationCarousel = bulmaCarousel.attach('#generation-carousel', {
+          slidesToScroll: 1,
+          slidesToShow: 1,
+          infinite: true,
+          autoplay: true,
+          autoplaySpeed: 3000,
+          pauseOnHover: true,
+          navigation: true
+        });
+
+        const editingCarousel = bulmaCarousel.attach('#editing-carousel', {
+          slidesToScroll: 1,
+          slidesToShow: 1,
+          infinite: true,
+          autoplay: true,
+          autoplaySpeed: 3000,
+          pauseOnHover: true,
+          navigation: true
+        });
+
+        const reasoningCarousel = bulmaCarousel.attach('#reasoning-carousel', {
+          slidesToScroll: 1,
+          slidesToShow: 1,
+          infinite: true,
+          autoplay: true,
+          autoplaySpeed: 3000,
+          pauseOnHover: true,
+          navigation: true
+        });
+
+        console.log('Carousels initialized successfully');
+      } catch (error) {
+        console.error('Error initializing carousels:', error);
+        document.querySelectorAll('.carousel .item:first-child').forEach(item => {
+          item.style.display = 'block';
+          item.style.visibility = 'visible';
+          item.style.opacity = '1';
+        });
+      }
+    } else {
+      console.log('bulmaCarousel not loaded, retrying...');
+      setTimeout(initCarousels, 500);
+    }
+  }
+});
+</script>
+
+
+<!--BibTex citation -->
+  <section class="section" id="BibTeX">
+    <div class="container is-max-desktop content">
+      <div class="bibtex-header">
+        <h2 class="title">BibTeX</h2>
+        <button class="copy-bibtex-btn" onclick="copyBibTeX()" title="Copy BibTeX to clipboard">
+          <i class="fas fa-copy"></i>
+          <span class="copy-text">Copy</span>
+        </button>
+      </div>
+      <pre id="bibtex-code"><code>@article{2025star,
+  title   = {STAR: STacked AutoRegressive Scheme for Unified Multimodal Learning},
+  author  = {Qin, Jie and Huang, Jiancheng and Qiao, Limeng and Ma, Lin},
+  journal = {arXiv preprint arXiv:},
+  year    = {2025}
+}</code></pre>
+    </div>
+</section>
+<!--End BibTex citation -->
+
+
+  <footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content has-text-centered">
+
+          <p>
+            This page was built using the <a href="https://github.com/eliahuhorwitz/Academic-project-page-template" target="_blank">Academic Project Page Template</a> project page.<br>
+            @ Meituan MM Team
+          </p>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
