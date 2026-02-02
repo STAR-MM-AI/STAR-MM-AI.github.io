@@ -1707,6 +1707,23 @@ document.addEventListener('DOMContentLoaded', function() {
 </section>
 <!--End BibTex citation -->
 
+function copyBibTeX() {
+  const bibtexCode = document.getElementById('bibtex-code').textContent;
+  
+  navigator.clipboard.writeText(bibtexCode).then(() => {
+    alert('BibTeX copied to clipboard!');
+  }).catch(err => {
+    // 备用方案
+    const textArea = document.createElement('textarea');
+    textArea.value = bibtexCode;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
+    alert('BibTeX copied to clipboard!');
+  });
+}
+
 
   <footer class="footer">
   <div class="container">
